@@ -1,5 +1,6 @@
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
+import calendar
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
@@ -28,8 +29,7 @@ class Article(db.Model):
     title = db.Column(db.String(256))
     slug = db.Column(db.String(256))
     content = db.Column(db.Text)
-    date = db.Column(db.DateTime)
-    time = db.Column(db.DateTime)
+    dateTime = db.Column(db.DateTime)
     volume = db.Column(db.Integer)
     issue = db.Column(db.Integer)
     isDraft = db.Column(db.Boolean)
@@ -46,6 +46,19 @@ def find_section(section_slug, subsection_slug):
                 return targetedSection
     targetedSection = None 
     return targetedSection
+def create_date(date):#Takes a dateTime object and modifies it into a specially formatted string for the date
+    month_number = date.month
+    month_name = calendar.month_name[month_number]
+    return month_name + " " + str(date.day) + ", " + str(date.year)
+def create_time(time):#Takes a dateTime object and modifies it into a specially formatted string for the time
+    hour = time.hour
+    if hour > 12:
+        hour -= 12
+    minute = time.minute
+    if time.hour >= 12:
+        return str(hour) + ":" + str(minute) + " PM"
+    else:
+        return str(hour) + ":" + str(minute) + " AM"
 
 @app.route('/sections/<string:section_slug>/subsections/<string:subsection_slug>', methods=['GET'])
 def show_section(section_slug, subsection_slug):
@@ -100,8 +113,8 @@ def show_article(section_slug, article_slug):
                 "content": article.content,
                 "volume": article.volume,
                 "issue": article.issue,
-                "date": article.date,
-                "time": article.time,
+                "date": create_date(article.dateTime),
+                "time": create_time(article.dateTime),
                 "section": article.section_id
             }
         )
