@@ -3,32 +3,21 @@ from app import app
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
-class Article(db.Model):
+class User(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    title = db.Column(db.String(500))
-    slug = db.Column(db.String(500))
-    content = db.Column(db.Text)
-    datetime = db.Column(db.DateTime)
-    volume = db.Column(db.Integer)
-    issue = db.Column(db.Integer)
-    isDraft = db.Column(db.Boolean)
+    firstName = db.Column(db.String(500))
+    lastName = db.Column(db.String(500))
+    email = db.Column(db.String(500))
+    skills = db.Column(db.String(500))
+    password = db.Column(db.String(500))
+    passwordConfirmation = db.Column(db.String(500))
+    posts = db.relationship('Posts',backref='user', lazy=True)
 
-    section_id = db.Column(db.Integer, db.ForeignKey('section.id'))
-    subsection_id = db.Column(db.Integer, db.ForeignKey('subsection.id'))
-
-
-class Section(db.Model):
+class Posts(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    name = db.Column(db.String(500))
-    slug = db.Column(db.String(500))
-    description = db.Column(db.Text)
+    title = db.Column(db.String(120))
+    content = db.Column(db.text)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     article_id = db.relationship('Article', backref='section', lazy='dynamic')
 
-class Subsection(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
-    name = db.Column(db.String(500))
-    slug = db.Column(db.String(500))
-    description = db.Column(db.Text)
-
-    article_id = db.relationship('Article', backref='subsection', lazy='dynamic')
